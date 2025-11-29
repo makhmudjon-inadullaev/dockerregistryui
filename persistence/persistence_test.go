@@ -137,3 +137,48 @@ func AssertTrue(t *testing.T, assertion bool, errorMessage string) {
 		t.Fail()
 	}
 }
+
+func TestREADMEPersistence(t *testing.T) {
+	handle := SetupPersistenceTest(t)
+	defer TeardownPersistenceTest(t, handle)
+
+	// Test creating README for new image
+	readmeContent := "# Test README\n\nThis is a test README with **markdown**."
+	imageDescription := handle.CreateAndPersistOrUpdateImageREADME("test-image", readmeContent)
+	AssertTrue(t, imageDescription.ID > 0, "No image description ID created for README")
+	AssertEquals(t, "test-image", imageDescription.ImageName, "Image name does not match")
+	AssertEquals(t, readmeContent, imageDescription.README, "README content does not match")
+
+	// Test finding README by name
+	foundREADME, err := handle.FindImageREADMEByName("test-image")
+	AssertTrue(t, err == nil, "Error finding README by name")
+	AssertEquals(t, readmeContent, foundREADME, "Found README content does not match")
+
+	// Test updating README
+	updatedContent := "# Updated README\n\nThis is an updated README."
+	updatedDescription := handle.CreateAndPersistOrUpdateImageREADME("test-image", updatedContent)
+	AssertEquals(t, imageDescription.ID, updatedDescription.ID, "Updated README did not retain original ID")
+	AssertEquals(t, updatedContent, updatedDescription.README, "Did not correctly update README content")
+
+	// Test finding non-existent README
+	_, notFoundErr := handle.FindImageREADMEByName("non-existent-image")
+	AssertTrue(t, notFoundErr != nil, "Should return error for non-existent image README")
+
+	// Test that README can be set to empty
+	emptyDescription := handle.CreateAndPersistOrUpdateImageREADME("test-image", "")
+	AssertEquals(t, "", emptyDescription.README, "README should be empty after clearing")
+
+	// Test that README is preserved when updating other fields via CreateAndPersistOrUpdateImageDescription
+	handle.CreateAndPersistOrUpdateImageREADME("image-with-readme", "# My README")
+	handle.CreateAndPersistOrUpdateImageDescription("image-with-readme", "new description", "docker run")
+	foundDesc, _ := handle.FindImageDescriptionByName("image-with-readme")
+	AssertEquals(t, "# My README", foundDesc.README, "README should be preserved when updating description")
+
+	// Test that other fields are preserved when updating README
+	handle.CreateAndPersistOrUpdateImageDescription("image-with-desc", "original description", "docker run original")
+	handle.CreateAndPersistOrUpdateImageREADME("image-with-desc", "# New README")
+	foundDesc2, _ := handle.FindImageDescriptionByName("image-with-desc")
+	AssertEquals(t, "original description", foundDesc2.Description, "Description should be preserved when updating README")
+	AssertEquals(t, "docker run original", foundDesc2.ExampleCommand, "ExampleCommand should be preserved when updating README")
+	AssertEquals(t, "# New README", foundDesc2.README, "README should be updated")
+}

@@ -25,6 +25,8 @@ type ImageDescription struct {
 	Description string `gorm:"type:longtext;"`
 	// ExampleCommand An example command for running the image.
 	ExampleCommand string `gorm:"type:longtext;"`
+	// README The readme markdown content for the image.
+	README string `gorm:"type:longtext;"`
 	// Categories Categories the image is grouped into.
 	Categories []ImageCategory `gorm:"many2many:image_category_image_description;"`
 }

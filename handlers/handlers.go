@@ -166,6 +166,21 @@ func (context *HandlerContext) EditHelloHandler(w http.ResponseWriter, r *http.R
 	context.RootRedirectHandler(w, r)
 }
 
+// EditImageREADMEHandler Edit the README of an image from a POST using "imageName" and "readme".
+func (context *HandlerContext) EditImageREADMEHandler(w http.ResponseWriter, r *http.Request) {
+	if !checkForPostWithError(w, r) {
+		return
+	}
+	r.ParseForm()
+	imageName := r.PostFormValue("imageName")
+	readme := r.PostFormValue("readme")
+	if len(imageName) > 0 {
+		context.cache.Flush()
+		context.db.CreateAndPersistOrUpdateImageREADME(imageName, readme)
+	}
+	context.RootRedirectHandler(w, r)
+}
+
 // RootRedirectHandler Redirects to the index page.
 func (context *HandlerContext) RootRedirectHandler(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, context.settings.ContextRoot+"/", 302)

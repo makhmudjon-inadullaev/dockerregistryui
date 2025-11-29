@@ -18,6 +18,7 @@ const fallbackURIImageDescription string = fallbackURIWritePrefix + "/imagedescr
 const fallbackURIRemoveCategoryFromImage string = fallbackURIWritePrefix + "/removecategoryfromimage"
 const fallbackURIRemoveCategory string = fallbackURIWritePrefix + "/removecategory"
 const fallbackURIHello string = fallbackURIWritePrefix + "/hello"
+const fallbackURIImageREADME string = fallbackURIWritePrefix + "/imagereadme"
 
 // RegistryHostEnvironmentVariableName Name of the environemnt variable for the registry host.
 const RegistryHostEnvironmentVariableName string = "REGISTRY_HOST"
@@ -53,6 +54,7 @@ type DockerRegistryUISettings struct {
 	URIRemoveCategoryFromImage string
 	URIRemoveCategory          string
 	URIHello                   string
+	URIImageREADME             string
 }
 
 // DefaultSettings Returns the default settings.
@@ -72,6 +74,7 @@ func DefaultSettings() DockerRegistryUISettings {
 		URIRemoveCategoryFromImage: fallbackURIRemoveCategoryFromImage,
 		URIRemoveCategory:          fallbackURIRemoveCategory,
 		URIHello:                   fallbackURIHello,
+		URIImageREADME:             fallbackURIImageREADME,
 	}
 }
 

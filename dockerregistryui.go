@@ -22,6 +22,7 @@ func main() {
 	http.HandleFunc(settings.URIAddCategoryToImage, context.AddCategoryToDescriptionHandler)
 	http.HandleFunc(settings.URIRemoveCategoryFromImage, context.RemoveCategoryFromDescriptionHandler)
 	http.HandleFunc(settings.URIHello, context.EditHelloHandler)
+	http.HandleFunc(settings.URIImageREADME, context.EditImageREADMEHandler)
 	http.HandleFunc(settings.ContextRoot+"/", context.IndexHandler)
 	http.HandleFunc(settings.ContextRoot, context.RootRedirectHandler)
 	http.HandleFunc("/", context.RootRedirectHandler)
