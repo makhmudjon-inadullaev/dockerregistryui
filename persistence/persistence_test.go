@@ -182,3 +182,54 @@ func TestREADMEPersistence(t *testing.T) {
 	AssertEquals(t, "docker run original", foundDesc2.ExampleCommand, "ExampleCommand should be preserved when updating README")
 	AssertEquals(t, "# New README", foundDesc2.README, "README should be updated")
 }
+
+func TestNewDBConfigDefaultPath(t *testing.T) {
+	// Ensure no environment variable is set
+	os.Unsetenv(RegistriesVolumePathEnvironmentVariableName)
+
+	config := NewDBConfig()
+	AssertEquals(t, DefaultDBPathPrefix, config.DBPathPrefix, "Default path should be /data/")
+	AssertEquals(t, "registryui.db", config.DBName, "Default db name should be registryui.db")
+	AssertEquals(t, "sqlite3", config.DBType, "Default db type should be sqlite3")
+}
+
+func TestNewDBConfigWithEnvironmentVariable(t *testing.T) {
+	// Set environment variable without trailing slash
+	os.Setenv(RegistriesVolumePathEnvironmentVariableName, "/custom/path")
+	defer os.Unsetenv(RegistriesVolumePathEnvironmentVariableName)
+
+	config := NewDBConfig()
+	AssertEquals(t, "/custom/path/", config.DBPathPrefix, "Path should have trailing slash added")
+}
+
+func TestNewDBConfigWithEnvironmentVariableTrailingSlash(t *testing.T) {
+	// Set environment variable with trailing slash
+	os.Setenv(RegistriesVolumePathEnvironmentVariableName, "/custom/path/")
+	defer os.Unsetenv(RegistriesVolumePathEnvironmentVariableName)
+
+	config := NewDBConfig()
+	AssertEquals(t, "/custom/path/", config.DBPathPrefix, "Path should preserve trailing slash")
+}
+
+func TestNewDBConfigWithEnvironmentVariableActualPersistence(t *testing.T) {
+	// Set environment variable to temp directory
+	tempDir := os.TempDir()
+	os.Setenv(RegistriesVolumePathEnvironmentVariableName, tempDir)
+	defer os.Unsetenv(RegistriesVolumePathEnvironmentVariableName)
+
+	config := NewDBConfig()
+	handle := StartPersistenceContext(config)
+	defer func() {
+		handle.StopPersistenceContext()
+		os.Remove(handle.Config.DBPathPrefix + handle.Config.DBName)
+	}()
+
+	// Test that database operations work correctly
+	readme := "# Test README from env var path"
+	imageDescription := handle.CreateAndPersistOrUpdateImageREADME("env-test-image", readme)
+	AssertTrue(t, imageDescription.ID > 0, "No image description ID created")
+
+	foundREADME, err := handle.FindImageREADMEByName("env-test-image")
+	AssertTrue(t, err == nil, "Error finding README by name")
+	AssertEquals(t, readme, foundREADME, "README content should match")
+}
