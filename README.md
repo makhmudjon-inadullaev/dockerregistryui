@@ -28,6 +28,7 @@ In general, you can configure the registry UI using environment variables. The f
 * `IGNORE_INSECURE_HTTPS` : Set this to `true` to get the UI to ignore bad or missing certificates when accessing the registry via HTTPS. Usage of this setting is not recommended. You may want to side-step the HTTPS-connection by accessing the registry via http from a local network, a linked container, or on the same pod using the `REGISTRY_URL` variable instead.
 * `REGISTRY_BASIC_AUTH_USER` : User to access registries protected with basic authentication.
 * `REGISTRY_BASIC_AUTH_PASSWORD` : Password to access registries protected with basic authentication.
+* `REGISTRIES_VOLUME_PATH` : The path where the SQLite database file (containing image descriptions, README content, and categories) will be stored. Defaults to `/data/`. The database file `registryui.db` will be created automatically in this directory at runtime if it doesn't exist.
 
 Some more examples using the environment variables for different setups can be found in the [deployment examples](#deployment-examples).
 
