@@ -156,10 +156,18 @@ func (handle *DBHandle) CreateAndPersistOrUpdateImageREADME(
 	tx := handle.db.Begin()
 	if tx.First(&imageDescription, "image_name = ?", imageName).RecordNotFound() {
 		imageDescription.README = readme
-		tx.Create(&imageDescription)
+		if err := tx.Create(&imageDescription).Error; err != nil {
+			tx.Rollback()
+			log.Printf("Could not create README: %s\n", err)
+			return &imageDescription
+		}
 	} else {
 		imageDescription.README = readme
-		tx.Save(&imageDescription)
+		if err := tx.Save(&imageDescription).Error; err != nil {
+			tx.Rollback()
+			log.Printf("Could not update README: %s\n", err)
+			return &imageDescription
+		}
 	}
 	tx.Commit()
 	return &imageDescription
