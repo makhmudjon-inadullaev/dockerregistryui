@@ -31,8 +31,8 @@ type DBHandle struct {
 	Config DBConfig
 }
 
-// NewDBConfig Creates a new DBConfig with default values.
-// The database path can be configured using the REGISTRIES_VOLUME_PATH environment variable.
+// NewDBConfig Creates a new DBConfig with default values. The database path can be
+// configured using the REGISTRIES_VOLUME_PATH environment variable.
 func NewDBConfig() DBConfig {
 	dbPathPrefix := DefaultDBPathPrefix
 	if volumePath := os.Getenv(RegistriesVolumePathEnvironmentVariableName); volumePath != "" {
