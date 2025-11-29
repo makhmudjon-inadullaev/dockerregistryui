@@ -35,6 +35,8 @@ type ImageData struct {
 	FormattedTags           string
 	FormattedDescription    template.HTML
 	FormattedExampleCommand template.HTML
+	FormattedREADME         template.HTML
+	README                  string
 	Description             *persistence.ImageDescription
 	OtherCategories         []persistence.ImageCategory
 }
@@ -67,6 +69,9 @@ func MergeAndFormatImageData(image utils.RegistryImage, description *persistence
 	unsafeFormattedExCommand = autolinkRegex.ReplaceAllString(unsafeFormattedExCommand, `<a href="$1">$1</a>`)
 	data.FormattedExampleCommand =
 		template.HTML(bluemonday.UGCPolicy().SanitizeBytes([]byte(unsafeFormattedExCommand)))
+	data.README = description.README
+	unsafeFormattedREADME := []byte(markdownRenderer.RenderToString([]byte(description.README)))
+	data.FormattedREADME = template.HTML(bluemonday.UGCPolicy().SanitizeBytes(unsafeFormattedREADME))
 	return data
 }
 

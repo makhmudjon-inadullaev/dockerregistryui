@@ -148,3 +148,28 @@ func (handle *DBHandle) FindHelloMessage() (string, error) {
 	}
 	return helloMessage.Message, nil
 }
+
+// CreateAndPersistOrUpdateImageREADME Creates or updates the README for an image.
+func (handle *DBHandle) CreateAndPersistOrUpdateImageREADME(
+	imageName string, readme string) *ImageDescription {
+	imageDescription := ImageDescription{ImageName: imageName}
+	tx := handle.db.Begin()
+	if tx.First(&imageDescription, "image_name = ?", imageName).RecordNotFound() {
+		imageDescription.README = readme
+		tx.Create(&imageDescription)
+	} else {
+		imageDescription.README = readme
+		tx.Save(&imageDescription)
+	}
+	tx.Commit()
+	return &imageDescription
+}
+
+// FindImageREADMEByName Find an image README using its name.
+func (handle *DBHandle) FindImageREADMEByName(name string) (string, error) {
+	imageDescription := ImageDescription{}
+	if handle.db.First(&imageDescription, "image_name = ?", name).RecordNotFound() {
+		return "", errors.New("Entity not found")
+	}
+	return imageDescription.README, nil
+}
