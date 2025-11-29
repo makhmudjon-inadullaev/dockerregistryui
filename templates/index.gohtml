@@ -4,6 +4,83 @@
 		<title>{{.Settings.RegistryHostName}} UI</title>
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
 		<link rel="icon" type="image/png" href="{{.Settings.ContextRoot}}/static/favicon.png">
+		<style>
+			body.dark-mode {
+				background-color: #1a1a2e;
+				color: #eaeaea;
+			}
+			body.dark-mode .navbar-inverse {
+				background-color: #16213e;
+				border-color: #0f3460;
+			}
+			body.dark-mode .table-striped > tbody > tr:nth-of-type(odd) {
+				background-color: #16213e;
+			}
+			body.dark-mode .table-striped > tbody > tr:nth-of-type(even) {
+				background-color: #1a1a2e;
+			}
+			body.dark-mode .table {
+				color: #eaeaea;
+			}
+			body.dark-mode .btn-default {
+				background-color: #0f3460;
+				border-color: #16213e;
+				color: #eaeaea;
+			}
+			body.dark-mode .btn-default:hover,
+			body.dark-mode .btn-default:focus {
+				background-color: #16213e;
+				border-color: #0f3460;
+				color: #ffffff;
+			}
+			body.dark-mode .modal-content {
+				background-color: #1a1a2e;
+				color: #eaeaea;
+			}
+			body.dark-mode .modal-header {
+				border-bottom-color: #0f3460;
+			}
+			body.dark-mode .modal-footer {
+				border-top-color: #0f3460;
+			}
+			body.dark-mode .form-control {
+				background-color: #16213e;
+				border-color: #0f3460;
+				color: #eaeaea;
+			}
+			body.dark-mode .form-control:focus {
+				border-color: #e94560;
+				box-shadow: 0 0 5px rgba(233, 69, 96, 0.5);
+			}
+			body.dark-mode code {
+				background-color: #16213e;
+				color: #e94560;
+			}
+			body.dark-mode a {
+				color: #e94560;
+			}
+			body.dark-mode .close {
+				color: #eaeaea;
+				opacity: 0.8;
+			}
+			body.dark-mode .close:hover {
+				color: #ffffff;
+				opacity: 1;
+			}
+			body.dark-mode .btn-secondary {
+				background-color: #0f3460;
+				border-color: #16213e;
+				color: #eaeaea;
+			}
+			.theme-toggle {
+				cursor: pointer;
+				padding: 10px 15px;
+				color: #9d9d9d;
+			}
+			.theme-toggle:hover {
+				color: #ffffff;
+			}
+		</style>
 	</head>
 	<body style="padding-top: 70px;">
 		<nav class="navbar navbar-inverse navbar-fixed-top">
@@ -11,6 +88,13 @@
 				<div class="navbar-header">
 					<a class="navbar-brand" href="{{.Settings.ContextRoot}}/">{{.Settings.RegistryHostName}} </a>
 				</div>
+				<ul class="nav navbar-nav navbar-right">
+					<li>
+						<span id="theme-toggle" class="theme-toggle" title="Toggle Dark/Light Mode">
+							<span class="glyphicon glyphicon-adjust"></span>
+						</span>
+					</li>
+				</ul>
 			</div>
 		</nav>
 		<div class="container-fluid">
@@ -203,5 +287,46 @@
 		</div>
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+		<script>
+			(function() {
+				var themeToggle = document.getElementById('theme-toggle');
+				var body = document.body;
+				var storageKey = 'dockerregistryui-theme';
+
+				function setTheme(isDark) {
+					if (isDark) {
+						body.classList.add('dark-mode');
+					} else {
+						body.classList.remove('dark-mode');
+					}
+				}
+
+				function loadTheme() {
+					var savedTheme = localStorage.getItem(storageKey);
+					if (savedTheme === 'dark') {
+						setTheme(true);
+					} else if (savedTheme === 'light') {
+						setTheme(false);
+					} else {
+						var darkModeQuery = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)');
+						if (darkModeQuery && darkModeQuery.matches) {
+							setTheme(true);
+						}
+					}
+				}
+
+				function toggleTheme() {
+					var isDark = body.classList.contains('dark-mode');
+					setTheme(!isDark);
+					localStorage.setItem(storageKey, isDark ? 'light' : 'dark');
+				}
+
+				loadTheme();
+
+				if (themeToggle) {
+					themeToggle.addEventListener('click', toggleTheme);
+				}
+			})();
+		</script>
 	</body>
 </html>
